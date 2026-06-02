@@ -32,9 +32,14 @@ def messaging_flow(user_socket):
             incoming_message = user_socket.recv(1024).decode("utf-8")
 
             if incoming_message.startswith("@"):
-                user_check = incoming_message.lstrip("@")
+
+                message_parts = incoming_message.split("", 1)
+                user_check = message_parts.lstrip("@")
+                message_body = message_parts[1] 
+
                 if user_check in users:
-                    users[user_check].send(f"{user_check} says: {incoming_message[1:]}".encode("utf-8"))
+                    users[user_check].send(f"{name_check} says: {message_body}".encode("utf-8"))
+                    user_socket.send("SENT".encode("utf-8"))
                 else:
                     user_socket.send("OFFLINE".encode("utf-8"))
             else:
