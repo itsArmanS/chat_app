@@ -20,26 +20,25 @@ SERVER.bind((HOST, PORT))
 SERVER.listen()
 
 def messaging_flow(user_socket):
-    data_check = user_socket.recv(1024).decode("utf-8")
-    data_check = data_check.split("|")
-
-    sender = data_check [0]
-    receiver = data_check[1]
-
-    if sender in users:
-        user_socket.send("NAME_TAKEN".encode("utf-8"))
-    elif receiver not in users:
-        user_socket.send("NOT_FOUND".encode("utf-8"))
-    elif receiver in users:
+    name_check = user_socket.recv(1024).decode("utf-8")
+   
+    if name_check in users:
+        user_socket.send("TAKEN".encode("utf-8"))
+    else:
+        users[name_check] = user_socket
         user_socket.send("OK".encode("utf-8"))
-
-        users[sender] = user_socket
-
+        
         while True:
-            return_message = user_socket.recv(1024).decode("utf-8")
-            users[receiver].send(f"{sender}: {return_message}".encode("utf-8"))
-                # user_socket.send(f"Your message was received!".encode("utf-8")) #encode before sending message to client
-                # return_socket.close() #ends connectiona
+            incoming_message = user_socket.recv(1024).decode("utf-8")
+
+            if incoming_message.startswith("@"):
+                user_check = incoming_message.lstrip("@")
+                if user_check in users:
+                    users[user_check].send(f"{user_check} says: {incoming_message[1:]}".encode("utf-8"))
+                else:
+                    user_socket.send("OFFLINE".encode("utf-8"))
+            else:
+                user_socket.send("WRONG".encode("utf-8"))
     
 
 while True:

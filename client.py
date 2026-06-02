@@ -4,11 +4,9 @@ import threading
 
 parser = argparse.ArgumentParser(description="C")
 parser.add_argument("name", type=str, help="Enter your username")
-parser.add_argument("--recepient", type=str, default="bot", help="Enter the user to send messages to")
 args = parser.parse_args()
 
 username = args.name
-recepient = args.recepient
 
 HOST = '172.20.10.3'
 PORT = 8888
@@ -16,23 +14,36 @@ PORT = 8888
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((HOST, PORT))
 
-def check_name(sender, receiver):
-    client_socket.send(f"{sender}|{receiver}".encode('utf-8'))
+def check_name(sender):
+    client_socket.send(sender.encode('utf-8'))
     return_message = client_socket.recv(1024).decode("utf-8")
 
     
-    if return_message == "NAME_TAKEN":
+    if return_message == "TAKEN":
         print("Username already in use, please try again.")
-    elif return_message == "NOT_FOUND":
-        print("Recepient is offline/unavailable")
-    elif return_message == "OK":
-        print(f"Your username was set to: {sender}")
+    else:
+        if return_message == "OK":
+            print(f"Added user {sender}!")
 
-        while True:
-            client_message = input("Enter your message:")
-            client_socket.send(f"{client_message}".encode("utf-8"))
+            while True:
+                print("Please enter @user followed by your <message>")
+        
+                client_message = input("->")
+                print(client_message)
+                client_socket.send(client_message.encode("utf-8"))
+
+                response = client_socket.recv(1024).decode("utf-8")
+
+                if response == "WRONG":
+                    print("Wrong format. Please use @user followed by your message")
+                elif response == "OFFLINE":
+                    print("User if offline, please try again later.")
+                elif response == "SENT":
+                    print("Sent!")
 
 
-check_name(username, recepient)
+
+
+check_name(username)
 
 
