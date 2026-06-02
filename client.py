@@ -22,28 +22,29 @@ def check_name(sender):
     if return_message == "TAKEN":
         print("Username already in use, please try again.")
     else:
-        if return_message == "OK":
-            print(f"Added user {sender}!")
+        print(f"Added user {sender}!")
+        return True
 
-            while True:
-                print("Please enter @user followed by your <message>")
-        
-                client_message = input("->")
-                print(client_message)
-                client_socket.send(client_message.encode("utf-8"))
+def listen():
+   while True:
+        data = client_socket.recv(1024).decode("utf-8")
+        if not data:
+            break
+        if data == "SENT":
+            print("Sent!")
+        elif data == "WRONG":
+            print("Wrong format: Please enter @<user> followed by your <message>")
+        elif data == "OFFLINE":
+            print("User is offline. Try again later")
+        else:
+            print(data)
 
-                response = client_socket.recv(1024).decode("utf-8")
+if not check_name(username):
+    exit()
 
-                if response == "WRONG":
-                    print("Wrong format. Please use @user followed by your message")
-                elif response == "OFFLINE":
-                    print("User if offline, please try again later.")
-                elif response == "SENT":
-                    print("Sent!")
+t1 = threading.Thread(target=listen, daemon=True)
+t1.start()    
 
-
-
-
-check_name(username)
-
-
+while True:
+    client_message = input("->")
+    client_socket.send(client_message.encode("utf-8"))

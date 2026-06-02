@@ -12,11 +12,7 @@ users = {
 
 
 SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# socket.AFF_INET is basically IPv4, socket.SOCK_STREAM sets it to look for TCP type connection
-
 SERVER.bind((HOST, PORT))
-# binds server, based on set host and port variables
-
 SERVER.listen()
 
 def messaging_flow(user_socket):
