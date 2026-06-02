@@ -33,13 +33,14 @@ def messaging_flow(user_socket):
 
             if incoming_message.startswith("@"):
 
-                message_parts = incoming_message.split("", 1)
-                user_check = message_parts.lstrip("@")
+                message_parts = incoming_message.split(" ", 1)
+                user_check = message_parts[0].lstrip("@")
                 message_body = message_parts[1] 
 
                 if user_check in users:
                     users[user_check].send(f"{name_check} says: {message_body}".encode("utf-8"))
                     user_socket.send("SENT".encode("utf-8"))
+                    print(f"forwarded {name_check} -> {user_check}: {message_body}")
                 else:
                     user_socket.send("OFFLINE".encode("utf-8"))
             else:
